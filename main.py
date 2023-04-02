@@ -1,5 +1,41 @@
 # python3
-'''
+class QueryHash:
+    def __init__(self, bucket_count):
+        self.bucket_count = bucket_count
+        self.buckets = [[] for i in range(bucket_count)]
+
+    def hash_function(self, s):
+        hash_value = 0
+        for c in reversed(s):
+            hash_value = (hash_value * 263 + ord(c)) % self.bucket_count
+        return hash_value
+    
+    def add(self, tel_number, tel_name):
+        hashed = self.hash_function(str(tel_number))
+        bucket = self.buckets[hashed]
+        for i in range(len(bucket)):
+            if bucket[i][0] == tel_number:
+                bucket[i][1] = tel_name
+                break
+        else:
+            bucket.append([tel_number, tel_name])
+    
+    def delete(self, tel_number):
+        hashed = self.hash_function(str(tel_number))
+        bucket = self.buckets[hashed]
+        for i in range(len(bucket)):
+            if bucket[i][0] == tel_number:
+                bucket.pop(i)
+                
+
+    def find(self, tel_number):
+        hashed = self.hash_function(str(tel_number))
+        bucket = self.buckets[hashed]
+        for i in range(len(bucket)):
+            if bucket[i][0] == tel_number:
+                return bucket[i][1]
+        return "not found"
+
 class Query:
     def __init__(self, query):
         self.type = query[0]
@@ -7,9 +43,9 @@ class Query:
         if self.type == 'add':
             self.name = query[2]
 
-def read_queries():
-    n = int(input())
-    return [Query(input().split()) for i in range(n)]
+def read_queries(n):
+    m = n
+    return [Query(input().split()) for i in range(m)]
 
 def write_responses(result):
     print('\n'.join(result))
@@ -17,33 +53,27 @@ def write_responses(result):
 def process_queries(queries):
     result = []
     # Keep list of all existing (i.e. not deleted yet) contacts.
-    contacts = []
+    #contacts = []
+    hash = QueryHash(len(queries))
     for cur_query in queries:
         if cur_query.type == 'add':
             # if we already have contact with such number,
             # we should rewrite contact's name
-            for contact in contacts:
-                if contact.number == cur_query.number:
-                    contact.name = cur_query.name
-                    break
-            else: # otherwise, just add it
-                contacts.append(cur_query)
+            tel_number = cur_query.number
+            tel_name = cur_query.name
+            hash.add(tel_number,tel_name)
+        # otherwise, just add it
         elif cur_query.type == 'del':
-            for j in range(len(contacts)):
-                if contacts[j].number == cur_query.number:
-                    contacts.pop(j)
-                    break
-        else:
-            response = 'not found'
-            for contact in contacts:
-                if contact.number == cur_query.number:
-                    response = contact.name
-                    break
+           tel_number = cur_query.number
+           hash.delete(tel_number)
+        elif cur_query.type == 'find':
+            tel_number = cur_query.number
+            response = hash.find(tel_number)
             result.append(response)
     return result
     
 '''
-# uzdevums izpildīts ar dictionary palīdzību :(
+# uzdevums ar dictionary palīdzību
 n = int(input())
 phonebook_dict = {}
 responses = []
@@ -63,6 +93,8 @@ for i in range(n):
             responses.append("not found")
 for i in responses:
     print(i)
+'''
 
-#if __name__ == '__main__':
-#    write_responses(process_queries(read_queries()))
+if __name__ == '__main__':
+    n = int(input())
+    write_responses(process_queries(read_queries(n)))
