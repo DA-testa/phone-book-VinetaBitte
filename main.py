@@ -1,5 +1,5 @@
 # python3
-
+'''
 class Query:
     def __init__(self, query):
         self.type = query[0]
@@ -41,7 +41,28 @@ def process_queries(queries):
                     break
             result.append(response)
     return result
+    
+'''
+# uzdevums izpildīts ar dictionary palīdzību :(
+n = int(input())
+phonebook_dict = {}
+responses = []
 
-if __name__ == '__main__':
-    write_responses(process_queries(read_queries()))
+for i in range(n):
+    current_query = input().split()
+    command = current_query[0]
+    if command == 'add':
+        phonebook_dict[current_query[1]] = current_query[2]
+    elif command == 'del':
+        if current_query[1] in phonebook_dict:
+            del phonebook_dict[current_query[1]]
+    elif command == 'find':
+        if current_query[1] in phonebook_dict:
+            responses.append(phonebook_dict[current_query[1]])
+        else:
+            responses.append("not found")
+for i in responses:
+    print(i)
 
+#if __name__ == '__main__':
+#    write_responses(process_queries(read_queries()))
